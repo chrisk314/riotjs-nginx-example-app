@@ -2,9 +2,9 @@ import '@riotjs/hot-reload'
 import {component, register} from 'riot'
 import {Route, Router} from '@riotjs/route'
 
-import App from './app.riot'
-import AppMain from './app-main.riot'
-import AppNavi from './app-navi.riot'
+import App from './shared/app.riot'
+import AppMain from './shared/app-main.riot'
+import AppNavi from './shared/app-navi.riot'
 
 register('router', Router)
 register('route', Route)

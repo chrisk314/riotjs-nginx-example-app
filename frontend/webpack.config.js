@@ -1,14 +1,20 @@
 const path = require('path')
 const webpack = require('webpack')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
-  entry: './app/main.js',
+  entry: './src/main.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/dist/',
     filename: 'bundle.js'
   },
-  devtool: 'inline',
+  plugins: [
+    new CopyWebpackPlugin([
+      { from: './src/index.html', to: './index.html' },
+      { from: './src/assets', to: './assets' },
+    ])
+  ],
   module: {
     rules: [
       {
@@ -32,5 +38,11 @@ module.exports = {
         }
       }
     ]
+  },
+  devServer: {
+    contentBase: path.join(__dirname, 'src'),
+    compress: true,
+    hot: true,
+    port: 3000
   }
 }
