@@ -1,0 +1,5 @@
+*
+!package.json
+!webpack.config.js
+!.babelrc
+!src

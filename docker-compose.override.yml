@@ -1,0 +1,28 @@
+# docker-compose.override.yml
+version: "3.8"
+
+services:
+  frontend:
+    container_name: frontend
+    hostname: frontend
+    image: riotjs-nginx-example-frontend-dev:master
+    command: npm run start
+    networks:
+      - riotjs-nginx-example-network
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+    restart: on-failure
+    volumes:
+      - ${PWD}/frontend/src:/var/www/app/src
+
+  nginx:
+    command: sh -c "
+      wait-for frontend:3000 &&
+      nginx -g 'daemon off;'"
+    depends_on:
+      - frontend
+    volumes:
+      - ${PWD}/reverseproxy/dev.nginx.conf:/etc/nginx/conf.d/default.conf
+      - ${PWD}/scripts/wait-for:/bin/wait-for

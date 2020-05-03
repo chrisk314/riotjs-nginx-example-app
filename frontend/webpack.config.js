@@ -40,9 +40,13 @@ module.exports = {
     ]
   },
   devServer: {
+    clientLogLevel: 'debug',
     contentBase: path.join(__dirname, 'src'),
     compress: true,
     hot: true,
-    port: 3000
+    host: "0.0.0.0",
+    inline: true,
+    port: "3000",
+    watchContentBase: true
   }
 }

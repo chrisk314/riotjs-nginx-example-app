@@ -10,8 +10,8 @@
     "node": ">=4.0.0"
   },
   "scripts": {
-    "build": "npx webpack",
-    "start": "webpack-dev-server --content-base src --inline --watch --hot --colors -d --port 3000"
+    "build": "webpack",
+    "start": "webpack-dev-server --watch --colors -d --host 0.0.0.0 --port 3000"
   },
   "keywords": [
     "riot",
