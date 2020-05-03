@@ -2,25 +2,8 @@
   <router base={base}>
     <app-main></app-main>
     <app-navi></app-navi>
-    <app-help></app-help>
   </router>
   <script>
-    // import {mount, register} from 'riot'
-    // import {Router, Route} from '@riotjs/route'
-    // import AppMain from './app-main.riot'
-    // import AppNavi from './app-navi.riot'
-    // import AppHelp from './app-help.riot'
-
-    // register('router', route.Router)
-    // register('route', route.Route)
-    // register('app-main', AppMain)
-    // register('app-navi', AppNavi)
-    // register('app-help', AppHelp)
-
-    // mount('app-main')
-    // mount('app-navi')
-    // mount('app-help')
-
     const loc = window.location
     export default {
       base: `${loc.protocol}//${loc.host}${loc.pathname ? loc.pathname : '' }`
