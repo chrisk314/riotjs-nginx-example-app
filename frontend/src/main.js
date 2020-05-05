@@ -1,6 +1,6 @@
 import '@riotjs/hot-reload'
 import {component, register} from 'riot'
-import {Route, Router} from '@riotjs/route'
+import {Route, Router, initDomListeners} from '@riotjs/route'
 
 import App from './shared/app.riot'
 
@@ -9,3 +9,4 @@ register('route', Route)
 
 const mountApp = component(App)
 const app = mountApp(document.getElementById('app'), {})
+initDomListeners()

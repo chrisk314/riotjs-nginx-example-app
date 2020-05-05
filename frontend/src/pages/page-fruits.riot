@@ -1,0 +1,59 @@
+<page-fruits>
+
+  <div class="header">
+    <h1>{ page.title }</h1>
+  </div>
+  <div class="content">
+    <p>{ page.body }</p>
+    <ul>
+      <li each={ item in state.data }>
+        <a href="#/fruits/{ item.id }">{ item.title }</a>
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    export default {
+      state: {
+        data: [
+          { id: 'apple', title: 'Apple', body: "The world biggest fruit company." },
+          { id: 'orange', title: 'Orange', body: "I don't have the word for it..." },
+          { id: 'pear', title: 'Pear', body: "Like an apple but waaaay nicer!" }
+        ],
+      },
+      page: {
+        title: "Fruits",
+        body: "A list of fruits!"
+      }
+    }
+  </script>
+
+  <style>
+    :host {
+      display: block;
+      text-align: center;
+    }
+    ul {
+      padding: 10px;
+      list-style: none;
+    }
+    li {
+      display: inline-block;
+      margin: 5px;
+    }
+    a {
+      display: block;
+      background: #f7f7f7;
+      text-decoration: none;
+      width: 150px;
+      height: 150px;
+      line-height: 150px;
+      color: inherit;
+    }
+    a:hover {
+      background: #eee;
+      color: #000;
+    }
+  </style>
+
+</page-fruits>

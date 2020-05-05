@@ -1,19 +1,37 @@
 <app>
+
   <router base={base}>
-    <app-navi></app-navi>
-    <app-main></app-main>
+    <div id="layout">
+      <app-navi></app-navi>
+      <div id="main">
+        <route path="(#)?"><page-home/></route>
+        <route path="#/about"><page-about/></route>
+        <route path="#/fruits"><page-fruits/></route>
+        <route path="#/fruits/:id">
+          <page-fruits-id route={ route }/>
+        </route>
+      </div>
+    </div>
   </router>
+
   <script>
     import AppNavi from './app-navi.riot'
-    import AppMain from './app-main.riot'
+    import PageHome from '../pages/page-home.riot'
+    import PageAbout from '../pages/page-about.riot'
+    import PageFruits from '../pages/page-fruits.riot'
+    import PageFruitsId from '../pages/page-fruits-id.riot'
 
     const loc = window.location
     export default {
       base: `${loc.protocol}//${loc.host}${loc.pathname ? loc.pathname : '' }`,
       components: {
         AppNavi,
-        AppMain
+        PageHome,
+        PageAbout,
+        PageFruits,
+        PageFruitsId
       }
     }
   </script>
+
 </app>
