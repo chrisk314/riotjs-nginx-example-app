@@ -2,7 +2,7 @@
 
   <router base={base}>
     <div id="layout">
-      <app-navi></app-navi>
+      <navi/>
       <div id="main">
         <route path="(#)?"><page-home/></route>
         <route path="#/about"><page-about/></route>
@@ -15,7 +15,7 @@
   </router>
 
   <script>
-    import AppNavi from './app-navi.riot'
+    import Navi from './navi.riot'
     import PageHome from '../pages/page-home.riot'
     import PageAbout from '../pages/page-about.riot'
     import PageFruits from '../pages/page-fruits.riot'
@@ -25,7 +25,7 @@
     export default {
       base: `${loc.protocol}//${loc.host}${loc.pathname ? loc.pathname : '' }`,
       components: {
-        AppNavi,
+        Navi,
         PageHome,
         PageAbout,
         PageFruits,
