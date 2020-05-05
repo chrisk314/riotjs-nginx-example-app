@@ -12,4 +12,5 @@ register('route', Route)
 register('app-main', AppMain)
 register('app-navi', AppNavi)
 
-component(App)(document.getElementById('app'), {})
+const mountApp = component(App)
+const app = mountApp(document.getElementById('app'), {})
