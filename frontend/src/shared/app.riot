@@ -1,12 +1,19 @@
 <app>
   <router base={base}>
-    <app-main></app-main>
     <app-navi></app-navi>
+    <app-main></app-main>
   </router>
   <script>
+    import AppNavi from './app-navi.riot'
+    import AppMain from './app-main.riot'
+
     const loc = window.location
     export default {
-      base: `${loc.protocol}//${loc.host}${loc.pathname ? loc.pathname : '' }`
+      base: `${loc.protocol}//${loc.host}${loc.pathname ? loc.pathname : '' }`,
+      components: {
+        AppNavi,
+        AppMain
+      }
     }
   </script>
 </app>
