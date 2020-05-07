@@ -43,6 +43,7 @@ module.exports = {
     clientLogLevel: 'debug',
     contentBase: path.join(__dirname, 'src'),
     compress: true,
+    disableHostCheck: true,
     hot: true,
     host: "0.0.0.0",
     inline: true,
