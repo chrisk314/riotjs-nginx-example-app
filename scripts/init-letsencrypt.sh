@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Adapted from the script https://github.com/wmnnd/nginx-certbot/blob/master/init-letsencrypt.sh
+# referenced in the Medium article 'Nginx and Let’s Encrypt with Docker in Less  Than 5 Minutes'
+#
+# The modified version in this repo performs the certbot bootstraping using docker volumes and
+# hence does not require pre existing data directories on the localhost (init steps for the init
+# steps... err yeah...). In addition this version adds CLI args making it more readily reusable.
+
 set -euo pipefail
 
 while getopts "d:e:s" opt; do
