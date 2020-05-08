@@ -84,7 +84,9 @@ docker exec helper sh -c "\
 echo
 
 echo "### Tearing down helper and nginx ..."
-(docker stop helper > /dev/null 2>&1 &)
-(docker-compose -f docker-compose.yml down > /dev/null 2>&1 &)
+docker stop helper &
+docker-compose -f docker-compose.yml down &
+
+wait
 
 exit 0
