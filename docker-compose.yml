@@ -14,9 +14,9 @@ services:
       - "443:443"
     restart: on-failure
     volumes:
-      - ${PWD}/reverseproxy/prod.nginx.conf:/etc/nginx/conf.d/default.conf
-      - ${PWD}/reverseproxy/extras.conf:/etc/nginx/extras.conf
-      - ${PWD}/reverseproxy/cache_expiration.conf:/etc/nginx/cache_expiration.conf
+      - ${PWD}/nginx/prod.nginx.conf:/etc/nginx/conf.d/default.conf
+      - ${PWD}/nginx/extras.conf:/etc/nginx/extras.conf
+      - ${PWD}/nginx/cache_expiration.conf:/etc/nginx/cache_expiration.conf
       - certbot-etc:/etc/letsencrypt
       - certbot-www:/var/www/certbot
 
