@@ -3,6 +3,9 @@ version: "3.8"
 
 services:
   frontend:
+    build:
+      context: ./frontend
+      target: dev-server
     container_name: frontend
     hostname: frontend
     image: riotjs-nginx-example-frontend-dev:master

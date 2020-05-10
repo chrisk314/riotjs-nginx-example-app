@@ -3,6 +3,7 @@ version: "3.8"
 
 services:
   nginx:
+    build: ./frontend
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     container_name: nginx
     hostname: nginx
