@@ -14,9 +14,7 @@ func main() {
 
 	api := router.Group("/api/v1")
 	{
-		api.GET("/", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{"data": "hello world"})
-		})
+		api.GET("/", Home)
 	}
 
 	router.NoRoute(func(c *gin.Context) {
