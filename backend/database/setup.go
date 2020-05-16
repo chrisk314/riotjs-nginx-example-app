@@ -12,6 +12,7 @@ import (
 
 var db *gorm.DB
 
+//PostgresConfig stores postgres config.
 type PostgresConfig struct {
 	Host     string
 	Port     string
@@ -21,6 +22,7 @@ type PostgresConfig struct {
 	SSLMode  string
 }
 
+// GetRequiredEnvVar tries to get env var referenced by key. Panics if unsuccesful.
 func GetRequiredEnvVar(key string) string {
 	if val, exists := os.LookupEnv(key); exists {
 		return val
@@ -28,6 +30,7 @@ func GetRequiredEnvVar(key string) string {
 	panic(fmt.Sprintf("Missing required env var: %s", key))
 }
 
+// GetPostgresConfig populates postgres config from env.
 func GetPostgresConfig() *PostgresConfig {
 	return &PostgresConfig{
 		Host:     GetRequiredEnvVar("POSTGRES_HOST"),
@@ -39,11 +42,13 @@ func GetPostgresConfig() *PostgresConfig {
 	}
 }
 
+// migrate applies database auto migrations with Gorm.
 func migrate() *gorm.DB {
 	db.AutoMigrate(&models.Book{})
 	return db
 }
 
+// InitDB performs database initialisation actions for `db`.
 func InitDB() *gorm.DB {
 	dbConf := GetPostgresConfig()
 	dbSpec := fmt.Sprintf(
@@ -55,10 +60,11 @@ func InitDB() *gorm.DB {
 		panic(fmt.Sprintf("Failed to connect to database with config: %s, err: %s", dbSpec, err))
 	}
 	db = conn
-	migrate()
+	migrate() // apply database migrations
 	return db
 }
 
+// GetDB returns an initialised database.
 func GetDB() *gorm.DB {
 	if db == nil {
 		InitDB()

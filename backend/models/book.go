@@ -1,5 +1,6 @@
 package models
 
+// Book models database Book table. Represents a book.
 type Book struct {
 	ID            uint   `json:"id" gorm:"primary_key"`
 	Title         string `json:"title"`

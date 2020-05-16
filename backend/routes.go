@@ -9,10 +9,12 @@ import (
 	"backend/models"
 )
 
+// Home serves JSON response for home route.
 func Home(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": "hello world"})
 }
 
+// BooksList serves JSON response for books list route.
 func BooksList(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 	var books []models.Book
