@@ -9,18 +9,14 @@ import (
 )
 
 func main() {
+	db := database.GetDB()
+	defer db.Close()
+
 	router := gin.New()
 
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
-
-	db := database.GetDB()
-	defer db.Close()
-
-	router.Use(func(c *gin.Context) {
-		c.Set("db", db)
-		c.Next()
-	})
+	router.Use(database.DBContext)
 
 	api := router.Group("/api/v1")
 	{
