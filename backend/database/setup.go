@@ -6,6 +6,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+
+	"backend/models"
 )
 
 var db *gorm.DB
@@ -37,6 +39,11 @@ func GetPostgresConfig() *PostgresConfig {
 	}
 }
 
+func migrate() *gorm.DB {
+	db.AutoMigrate(&models.Book{})
+	return db
+}
+
 func InitDB() *gorm.DB {
 	dbConf := GetPostgresConfig()
 	dbSpec := fmt.Sprintf(
@@ -48,6 +55,7 @@ func InitDB() *gorm.DB {
 		panic(fmt.Sprintf("Failed to connect to database with config: %s, err: %s", dbSpec, err))
 	}
 	db = conn
+	migrate()
 	return db
 }
 
