@@ -3,89 +3,80 @@ package main
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"github.com/labstack/echo/v4"
 
 	"backend/models"
 )
 
+type JSONResp map[string]interface{}
+
 // Home serves JSON response for home route.
-func Home(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"data": "hello world"})
+func Home(c echo.Context) error {
+	return c.JSON(http.StatusOK, JSONResp{"data": "Hello world!"})
 }
 
 // BooksList serves JSON response for books list route.
-func BooksList(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+func BooksList(c echo.Context) error {
+	db := c.Get("db").(*gorm.DB) // TODO : How to ensure db not nil?
 	var books []models.Book
 	db.Find(&books)
-	c.JSON(http.StatusOK, gin.H{"data": books})
+	return c.JSON(http.StatusOK, JSONResp{"data": books})
 }
 
 // BooksCreate creates a new book record.
-func BooksCreate(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+func BooksCreate(c echo.Context) error {
+	db := c.Get("db").(*gorm.DB) // TODO : How to ensure db not nil?
 	book := models.Book{}
-	if err := c.ShouldBindJSON(&book); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	if err := c.Bind(&book); err != nil {
+		return c.JSON(http.StatusBadRequest, JSONResp{"error": err.Error()})
 	}
-
 	db.Create(&book)
-	c.JSON(http.StatusOK, gin.H{"data": book})
+	return c.JSON(http.StatusOK, JSONResp{"data": book})
 }
 
 // BooksGet serves JSON response containing a single book by ID.
-func BooksGet(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+func BooksGet(c echo.Context) error {
+	db := c.Get("db").(*gorm.DB) // TODO : How to ensure db not nil?
 	book := models.Book{}
 	if err := db.Where("id = ?", c.Param("id")).First(&book).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Record does not exist."})
-		return
+		return c.JSON(http.StatusBadRequest, JSONResp{"error": "Record does not exist."})
 	}
-
-	c.JSON(http.StatusOK, gin.H{"data": book})
+	return c.JSON(http.StatusOK, JSONResp{"data": book})
 }
 
 // BooksUpdate updates a book record.
-func BooksUpdate(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+func BooksUpdate(c echo.Context) error {
+	db := c.Get("db").(*gorm.DB) // TODO : How to ensure db not nil?
 	book := models.Book{}
 	if err := db.Where("id = ?", c.Param("id")).First(&book).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Record does not exist."})
-		return
+		return c.JSON(http.StatusBadRequest, JSONResp{"error": "Record does not exist."})
 	}
-
 	input := models.BookUpdater{}
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	if err := c.Bind(&input); err != nil {
+		return c.JSON(http.StatusBadRequest, JSONResp{"error": err.Error()})
 	}
 	db.Model(&book).Updates(input)
-
-	c.JSON(http.StatusOK, gin.H{"data": book})
+	return c.JSON(http.StatusOK, JSONResp{"data": book})
 }
 
 // BooksDelete deletes a single book by ID.
-func BooksDelete(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+func BooksDelete(c echo.Context) error {
+	db := c.Get("db").(*gorm.DB) // TODO : How to ensure db not nil?
 	book := models.Book{}
 	if err := db.Where("id = ?", c.Param("id")).First(&book).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Record does not exist."})
+		return c.JSON(http.StatusBadRequest, JSONResp{"error": "Record does not exist."})
 	}
-
 	db.Delete(&book)
-	c.JSON(http.StatusAccepted, gin.H{"data": true})
+	return c.JSON(http.StatusAccepted, JSONResp{"data": true})
 }
 
 // BooksGetByISBN serves JSON response containing a single book by ISBN.
-func BooksGetByISBN(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+func BooksGetByISBN(c echo.Context) error {
+	db := c.Get("db").(*gorm.DB) // TODO : How to ensure db not nil?
 	book := models.Book{}
 	if err := db.Where("isbn = ?", c.Param("isbn")).First(&book).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Record does not exist."})
-		return
+		return c.JSON(http.StatusBadRequest, JSONResp{"error": "Record does not exist."})
 	}
-
-	c.JSON(http.StatusOK, gin.H{"data": book})
+	return c.JSON(http.StatusOK, JSONResp{"data": book})
 }

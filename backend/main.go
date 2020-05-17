@@ -1,23 +1,29 @@
 package main
 
 import (
-	"net/http"
+	"fmt"
+	"os"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 
 	"backend/database"
 )
 
 func main() {
+	// Init database
 	db := database.GetDB()
 	defer db.Close()
 
-	router := gin.New()
+	// Echo instance
+	router := echo.New()
 
-	router.Use(gin.Logger())
-	router.Use(gin.Recovery())
+	// Middleware
+	router.Use(middleware.Logger())
+	router.Use(middleware.Recover())
 	router.Use(database.DBContext)
 
+	// Routes
 	api := router.Group("/api/v1")
 	{
 		api.GET("/", Home)
@@ -28,13 +34,10 @@ func main() {
 			books.GET("/:id", BooksGet)
 			books.PATCH("/:id", BooksUpdate)
 			books.DELETE("/:id", BooksDelete)
-			// books.GET("/isbn/:isbn", BooksGetByISBN)  // gin router breaks for paths like this. See eg https://github.com/gin-gonic/gin/issues/1681. Consider switching framework
+			books.GET("/isbn/:isbn", BooksGetByISBN)
 		}
 	}
 
-	router.NoRoute(func(c *gin.Context) {
-		c.JSON(http.StatusNotFound, gin.H{"message": "Page not found."})
-	})
-
-	router.Run()
+	// Start server
+	router.Logger.Fatal(router.Start(fmt.Sprintf(":%s", os.Getenv("PORT"))))
 }
