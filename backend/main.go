@@ -24,7 +24,10 @@ func main() {
 		books := api.Group("/books")
 		{
 			books.GET("/", BooksList)
+			books.POST("/", BooksCreate)
 			books.GET("/:id", BooksGet)
+			books.PATCH("/:id", BooksUpdate)
+			books.DELETE("/:id", BooksDelete)
 		}
 	}
 
