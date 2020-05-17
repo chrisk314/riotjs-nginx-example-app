@@ -77,3 +77,15 @@ func BooksDelete(c *gin.Context) {
 	db.Delete(&book)
 	c.JSON(http.StatusAccepted, gin.H{"data": true})
 }
+
+// BooksGetByISBN serves JSON response containing a single book by ISBN.
+func BooksGetByISBN(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	book := models.Book{}
+	if err := db.Where("isbn = ?", c.Param("isbn")).First(&book).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Record does not exist."})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": book})
+}

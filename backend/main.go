@@ -28,6 +28,7 @@ func main() {
 			books.GET("/:id", BooksGet)
 			books.PATCH("/:id", BooksUpdate)
 			books.DELETE("/:id", BooksDelete)
+			// books.GET("/isbn/:isbn", BooksGetByISBN)  // gin router breaks for paths like this. See eg https://github.com/gin-gonic/gin/issues/1681. Consider switching framework
 		}
 	}
 

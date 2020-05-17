@@ -12,7 +12,7 @@ type Book struct {
 	Title           string    `json:"title" binding:"required"`
 	Authors         string    `json:"authors" binding:"required"`
 	AverageRating   string    `json:"average_rating"`
-	ISBN            string    `json:"isbn" binding:"required"`
+	ISBN            string    `json:"isbn" binding:"required" gorm:"index"`
 	ISBN13          string    `json:"isbn_13"`
 	LanguageCode    string    `json:"language_code" binding:"required"`
 	NumPages        int       `json:"num_pages"`
