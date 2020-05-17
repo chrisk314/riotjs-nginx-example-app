@@ -22,6 +22,7 @@ func main() {
 	{
 		api.GET("/", Home)
 		api.GET("/books", BooksList)
+		api.GET("/books/:id", BooksGetByID)
 	}
 
 	router.NoRoute(func(c *gin.Context) {
