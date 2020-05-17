@@ -22,8 +22,8 @@ func BooksList(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": books})
 }
 
-// BooksGetByID serves JSON response containing a single book by ID.
-func BooksGetByID(c *gin.Context) {
+// BooksGet serves JSON response containing a single book by ID.
+func BooksGet(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 	book := models.Book{}
 	if err := db.Where("id = ?", c.Param("id")).First(&book).Error; err != nil {

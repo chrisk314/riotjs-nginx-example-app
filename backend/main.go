@@ -24,7 +24,7 @@ func main() {
 		books := api.Group("/books")
 		{
 			books.GET("/", BooksList)
-			books.GET("/:id", BooksGetByID)
+			books.GET("/:id", BooksGet)
 		}
 	}
 
