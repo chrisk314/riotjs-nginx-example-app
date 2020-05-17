@@ -21,8 +21,11 @@ func main() {
 	api := router.Group("/api/v1")
 	{
 		api.GET("/", Home)
-		api.GET("/books", BooksList)
-		api.GET("/books/:id", BooksGetByID)
+		books := api.Group("/books")
+		{
+			books.GET("/", BooksList)
+			books.GET("/:id", BooksGetByID)
+		}
 	}
 
 	router.NoRoute(func(c *gin.Context) {
