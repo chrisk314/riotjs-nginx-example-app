@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/jinzhu/gorm"
@@ -10,6 +11,14 @@ import (
 )
 
 type JSONResp map[string]interface{}
+
+func badRequest(c echo.Context, msg string) error {
+	return c.JSON(http.StatusBadRequest, JSONResp{"error": msg})
+}
+
+func getRecordByParamKey(i interface{}, key string, db *gorm.DB, c echo.Context) error {
+	return db.Where(fmt.Sprintf("%s = ?", key), c.Param(key)).First(i).Error
+}
 
 // Home serves JSON response for home route.
 func Home(c echo.Context) error {
@@ -28,8 +37,8 @@ func BooksList(c echo.Context) error {
 func BooksCreate(c echo.Context) error {
 	db := c.Get("db").(*gorm.DB) // TODO : How to ensure db not nil?
 	book := models.Book{}
-	if err := c.Bind(&book); err != nil {
-		return c.JSON(http.StatusBadRequest, JSONResp{"error": err.Error()})
+	if err := c.Bind(&book); err != nil { // Need to add input validation.
+		return badRequest(c, err.Error())
 	}
 	db.Create(&book)
 	return c.JSON(http.StatusOK, JSONResp{"data": book})
@@ -39,8 +48,8 @@ func BooksCreate(c echo.Context) error {
 func BooksGet(c echo.Context) error {
 	db := c.Get("db").(*gorm.DB) // TODO : How to ensure db not nil?
 	book := models.Book{}
-	if err := db.Where("id = ?", c.Param("id")).First(&book).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, JSONResp{"error": "Record does not exist."})
+	if err := getRecordByParamKey(&book, "id", db, c); err != nil {
+		return badRequest(c, err.Error())
 	}
 	return c.JSON(http.StatusOK, JSONResp{"data": book})
 }
@@ -49,12 +58,12 @@ func BooksGet(c echo.Context) error {
 func BooksUpdate(c echo.Context) error {
 	db := c.Get("db").(*gorm.DB) // TODO : How to ensure db not nil?
 	book := models.Book{}
-	if err := db.Where("id = ?", c.Param("id")).First(&book).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, JSONResp{"error": "Record does not exist."})
+	if err := getRecordByParamKey(&book, "id", db, c); err != nil {
+		return badRequest(c, err.Error())
 	}
 	input := models.BookUpdater{}
 	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, JSONResp{"error": err.Error()})
+		return badRequest(c, err.Error())
 	}
 	db.Model(&book).Updates(input)
 	return c.JSON(http.StatusOK, JSONResp{"data": book})
@@ -64,8 +73,8 @@ func BooksUpdate(c echo.Context) error {
 func BooksDelete(c echo.Context) error {
 	db := c.Get("db").(*gorm.DB) // TODO : How to ensure db not nil?
 	book := models.Book{}
-	if err := db.Where("id = ?", c.Param("id")).First(&book).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, JSONResp{"error": "Record does not exist."})
+	if err := getRecordByParamKey(&book, "id", db, c); err != nil {
+		return badRequest(c, err.Error())
 	}
 	db.Delete(&book)
 	return c.JSON(http.StatusAccepted, JSONResp{"data": true})
@@ -75,8 +84,8 @@ func BooksDelete(c echo.Context) error {
 func BooksGetByISBN(c echo.Context) error {
 	db := c.Get("db").(*gorm.DB) // TODO : How to ensure db not nil?
 	book := models.Book{}
-	if err := db.Where("isbn = ?", c.Param("isbn")).First(&book).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, JSONResp{"error": "Record does not exist."})
+	if err := getRecordByParamKey(&book, "isbn", db, c); err != nil {
+		return badRequest(c, err.Error())
 	}
 	return c.JSON(http.StatusOK, JSONResp{"data": book})
 }
