@@ -25,10 +25,11 @@ and the first SSL certs obtained from letsencrypt with certbot by executing thes
 a valid email address
 
 ```
-scripts/set-domains.sh my-domain.com
-scripts/init-letsencrypt.sh -e my-email@gmail.com -d my-domain.com
+scripts/set-domains.sh my-domain.com www.my-domain.com
+scripts/init-letsencrypt.sh -e my-email@gmail.com -d my-domain.com -d www.my-domain.com
 ```
 ---
+
 With valid SSL certs and acme-challenge already stored in the `certbot-etc` and `certbot-www` docker
 volumes created in the previous steps, the app can be run on port 80 with
 
