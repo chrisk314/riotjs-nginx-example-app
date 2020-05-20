@@ -2,6 +2,15 @@
 version: "3.8"
 
 services:
+
+  backend:
+    build:
+      context: ./backend
+      target: builder
+    image: riotjs-nginx-example-backend-dev:master
+    volumes:
+      - ${PWD}/backend:/app/
+
   frontend:
     build:
       context: ./frontend

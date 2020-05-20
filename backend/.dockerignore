@@ -1,0 +1,8 @@
+*
+!**/*.go  # Hopefully this will one day be supported...
+!*.go
+!database/*.go
+!models/*.go
+!go.mod
+!go.sum
+!modd.conf
