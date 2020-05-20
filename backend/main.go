@@ -19,6 +19,7 @@ func main() {
 	router := echo.New()
 
 	// Middleware
+	router.Pre(middleware.RemoveTrailingSlash())
 	router.Use(middleware.Logger())
 	router.Use(middleware.Recover())
 	router.Use(database.DBContext)
@@ -26,11 +27,11 @@ func main() {
 	// Routes
 	api := router.Group("/api/v1")
 	{
-		api.GET("/", Home)
+		api.GET("", Home)
 		books := api.Group("/books")
 		{
-			books.GET("/", BooksList)
-			books.POST("/", BooksCreate)
+			books.GET("", BooksList)
+			books.POST("", BooksCreate)
 			books.GET("/:id", BooksGet)
 			books.PATCH("/:id", BooksUpdate)
 			books.DELETE("/:id", BooksDelete)
