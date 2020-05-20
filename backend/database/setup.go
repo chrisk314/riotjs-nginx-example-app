@@ -69,5 +69,8 @@ func GetDB() *gorm.DB {
 	if db == nil {
 		InitDB()
 	}
+	if err := db.DB().Ping(); err != nil {
+		panic(fmt.Sprintf("Database connection test failed, err: %s", err))
+	}
 	return db
 }
