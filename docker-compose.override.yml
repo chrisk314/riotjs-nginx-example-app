@@ -36,9 +36,13 @@ services:
 
   nginx:
     command: sh -c "
+      wait-for.sh adminer:8080 &&
+      wait-for.sh backend:5000 &&
       wait-for.sh frontend:3000 &&
       nginx -g 'daemon off;'"
     depends_on:
+      - adminer
+      - backend
       - frontend
     volumes:
       - ${PWD}/nginx/dev.nginx.conf:/etc/nginx/conf.d/default.conf
