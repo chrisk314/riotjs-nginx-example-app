@@ -2,12 +2,17 @@
 version: "3.8"
 
 services:
+  postgres:
+    ports:
+      - "5432:5432"
 
   backend:
     build:
       context: ./backend
       target: builder
     image: riotjs-nginx-example-backend-dev:master
+    ports:
+      - "5000:5000"
     volumes:
       - ${PWD}/backend:/app/
 
