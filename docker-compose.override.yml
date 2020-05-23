@@ -11,6 +11,8 @@ services:
       context: ./backend
       target: builder
     image: riotjs-nginx-example-backend-dev:master
+    environment:
+      DEBUG: "true"
     ports:
       - "5000:5000"
     volumes:

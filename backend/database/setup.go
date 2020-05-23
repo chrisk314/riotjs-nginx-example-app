@@ -61,6 +61,9 @@ func InitDB() *gorm.DB {
 	}
 	db = conn
 	migrate() // apply database migrations
+	if os.Getenv("DEBUG") == "true" {
+		db.LogMode(true)
+	}
 	return db
 }
 
