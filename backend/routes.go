@@ -79,7 +79,7 @@ func (qss querySpecs) FieldSet() utils.StringSet {
 }
 
 func getQuerySpecFromTok(tok, sep string) (querySpec, error) {
-	_x := strings.Split(tok, sep)
+	_x := strings.SplitN(tok, sep, 2)
 	if len(_x) != 2 {
 		return querySpec{}, fmt.Errorf("Invalid specifier: %s", _x)
 	}
@@ -169,7 +169,7 @@ func getFilterSpecs(c echo.Context) (qss querySpecs, err error) {
 	for field := range recognisedFilters {
 		if _filters, ok := c.QueryParams()[field]; ok {
 			for _, _filter := range _filters {
-				_x := strings.Split(_filter, ":")
+				_x := strings.SplitN(_filter, ":", 2)
 				if len(_x) != 2 {
 					return querySpecs{}, fmt.Errorf("Invalid specifier: %s", _x)
 				}
