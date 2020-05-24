@@ -58,6 +58,7 @@ func isAllowedSortColumn(col string) bool {
 
 type querySpec struct {
 	field string
+	op    string
 	value string
 }
 
@@ -144,6 +145,45 @@ func getSortSpecs(s string) (qss querySpecs, err error) {
 	return qss, nil
 }
 
+var recognisedFilters = utils.NewStringSet(
+	[]string{
+		"average_rating",
+		"language_code",
+		"num_pages",
+		"ratings",
+		"reviews",
+		"publication_date",
+		"publisher",
+	},
+)
+
+var recognisedFilterOps = map[string]string{
+	"gt":  ">",
+	"gte": ">=",
+	"lt":  "<",
+	"lte": "<=",
+}
+
+func getFilterSpecs(c echo.Context) (qss querySpecs, err error) {
+	qss = querySpecs{}
+	for field := range recognisedFilters {
+		if _filters, ok := c.QueryParams()[field]; ok {
+			for _, _filter := range _filters {
+				_x := strings.Split(_filter, ":")
+				if len(_x) != 2 {
+					return querySpecs{}, fmt.Errorf("Invalid specifier: %s", _x)
+				}
+				if op, ok := recognisedFilterOps[_x[0]]; !ok {
+					return querySpecs{}, fmt.Errorf("Invalid filter operation: %s", _x[0])
+				} else {
+					qss = append(qss, querySpec{field: field, op: op, value: _x[1]})
+				}
+			}
+		}
+	}
+	return qss, nil
+}
+
 // BooksList serves JSON response for books list route.
 func BooksList(c echo.Context) (err error) {
 	db := c.Get("db").(*gorm.DB) // TODO : How to ensure db not nil?
@@ -164,6 +204,10 @@ func BooksList(c echo.Context) (err error) {
 	if err != nil {
 		return badRequest(c, err.Error())
 	}
+	filterSpecs, err := getFilterSpecs(c)
+	if err != nil {
+		return badRequest(c, err.Error())
+	}
 	if len(sortSpecs) > 0 {
 		if !sortSpecs.FieldSet().ContainsSet(afterSpecs.FieldSet()) {
 			err = fmt.Errorf("incompatible `sort_by` and `after` specifications")
@@ -175,22 +219,31 @@ func BooksList(c echo.Context) (err error) {
 	for _, ss := range sortSpecs {
 		q = q.Order(fmt.Sprintf("%s %s", ss.field, ss.value))
 	}
-	for i := 0; i < len(afterSpecs); i++ {
-		op := "<"
-		if sortSpecs[i].value == "asc" {
-			op = ">"
+	for _, fs := range filterSpecs {
+		q = q.Where(fmt.Sprintf("%s %s '%s'", fs.field, fs.op, fs.value))
+	}
+	// Seek query must be composed manually due to current limitations in Gorm
+	// with complex AND/OR combinations.
+	if len(afterSpecs) > 0 {
+		var stmt string
+		for i := 0; i < len(afterSpecs); i++ {
+			op := "<"
+			if sortSpecs[i].value == "asc" {
+				op = ">"
+			}
+			as := afterSpecs[i]
+			orStmt := fmt.Sprintf("%s %s '%s'", as.field, op, as.value)
+			for j := i - 1; j >= 0; j-- {
+				as = afterSpecs[j]
+				orStmt = fmt.Sprintf("%s = '%s' AND %s", as.field, as.value, orStmt)
+			}
+			if i == 0 {
+				stmt = fmt.Sprintf("(%s)", orStmt)
+			} else {
+				stmt = fmt.Sprintf("%s OR (%s)", stmt, orStmt)
+			}
 		}
-		as := afterSpecs[i]
-		stmt := fmt.Sprintf("%s %s '%s'", as.field, op, as.value)
-		for j := i - 1; j >= 0; j-- {
-			as = afterSpecs[j]
-			stmt = fmt.Sprintf("%s = '%s' AND %s", as.field, as.value, stmt)
-		}
-		if i == 0 {
-			q = q.Where(stmt)
-		} else {
-			q = q.Or(stmt)
-		}
+		q = q.Where(stmt)
 	}
 	// Execute query
 	var books []models.Book
