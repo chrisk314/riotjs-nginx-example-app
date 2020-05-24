@@ -3,6 +3,7 @@
 !*.go
 !database/*.go
 !models/*.go
+!utils/*.go
 !go.mod
 !go.sum
 !modd.conf
