@@ -49,6 +49,7 @@ echo "### Creating dummy certificate for ${domains[0]} ..."
 path="/etc/letsencrypt/live/${domains[0]}"
 docker exec helper sh -c "\
   mkdir -p ${path} && \
+  ln -s ${path} $(dirname ${path})/primary &&
   openssl req -x509 -nodes -newkey rsa:1024 -days 1\
     -keyout '${path}/privkey.pem' \
     -out '${path}/fullchain.pem' \

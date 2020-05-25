@@ -40,5 +40,8 @@ func main() {
 	}
 
 	// Start server
-	router.Logger.Fatal(router.Start(fmt.Sprintf(":%s", os.Getenv("PORT"))))
+	port := os.Getenv("PORT")
+	sslCertPath := os.Getenv("SSL_CERT_PATH")
+	sslKeyPath := os.Getenv("SSL_KEY_PATH")
+	router.Logger.Fatal(router.StartTLS(fmt.Sprintf(":%s", port), sslCertPath, sslKeyPath))
 }

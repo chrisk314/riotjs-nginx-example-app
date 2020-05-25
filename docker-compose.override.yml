@@ -13,10 +13,14 @@ services:
     image: riotjs-nginx-example-backend-dev:master
     environment:
       DEBUG: "true"
+      SSL_CERT_PATH: /etc/ssl/certs/cert.pem
+      SSL_KEY_PATH: /etc/ssl/private/privkey.pem
     ports:
       - "5000:5000"
     volumes:
       - ${PWD}/backend:/app/
+      - ${HOME}/.ssl/certs/localhost.pem:/etc/ssl/certs/cert.pem
+      - ${HOME}/.ssl/private/localhost.pem:/etc/ssl/private/privkey.pem
 
   frontend:
     build:
