@@ -173,11 +173,11 @@ func getFilterSpecs(c echo.Context) (qss querySpecs, err error) {
 				if len(_x) != 2 {
 					return querySpecs{}, fmt.Errorf("Invalid specifier: %s", _x)
 				}
-				if op, ok := recognisedFilterOps[_x[0]]; !ok {
+				var op string
+				if op, ok = recognisedFilterOps[_x[0]]; !ok {
 					return querySpecs{}, fmt.Errorf("Invalid filter operation: %s", _x[0])
-				} else {
-					qss = append(qss, querySpec{field: field, op: op, value: _x[1]})
 				}
+				qss = append(qss, querySpec{field: field, op: op, value: _x[1]})
 			}
 		}
 	}
@@ -214,10 +214,18 @@ func BooksList(c echo.Context) (err error) {
 			return badRequest(c, err.Error())
 		}
 	}
+	prev := false
+	if _, ok := c.QueryParams()["previous"]; ok {
+		prev = true
+	}
 	// Compose query
 	q := db.Limit(limit)
 	for _, ss := range sortSpecs {
-		q = q.Order(fmt.Sprintf("%s %s", ss.field, ss.value))
+		order := "desc"
+		if (ss.value == "desc" && prev) || (ss.value == "asc" && !prev) {
+			order = "asc"
+		}
+		q = q.Order(fmt.Sprintf("%s %s", ss.field, order))
 	}
 	for _, fs := range filterSpecs {
 		q = q.Where(fmt.Sprintf("%s %s '%s'", fs.field, fs.op, fs.value))
@@ -228,7 +236,7 @@ func BooksList(c echo.Context) (err error) {
 		var stmt string
 		for i := 0; i < len(afterSpecs); i++ {
 			op := "<"
-			if sortSpecs[i].value == "asc" {
+			if (sortSpecs[i].value == "desc" && prev) || (sortSpecs[i].value == "asc" && !prev) {
 				op = ">"
 			}
 			as := afterSpecs[i]
@@ -248,6 +256,11 @@ func BooksList(c echo.Context) (err error) {
 	// Execute query
 	var books []models.Book
 	q.Find(&books)
+	if prev { // Put data in correct order if this was a request for previoius page.
+		for i, j := 0, len(books)-1; i < j; i, j = i+1, j-1 {
+			books[i], books[j] = books[j], books[i]
+		}
+	}
 	return c.JSON(http.StatusOK, JSONResp{"data": books, "count": len(books)})
 }
 
