@@ -53,7 +53,10 @@ services:
     networks:
       - riotjs-nginx-example-network
     volumes:
-      - certbot-etc:/etc/letsencrypt
+      - type: volume
+        source: certbot-etc
+        target: /etc/letsencrypt
+        read_only: true
 
   nginx:
     build: ./frontend
@@ -77,9 +80,15 @@ services:
       - ${PWD}/nginx/prod.nginx.conf:/etc/nginx/conf.d/default.conf
       - ${PWD}/nginx/extras.conf:/etc/nginx/extras.conf
       - ${PWD}/nginx/cache_expiration.conf:/etc/nginx/cache_expiration.conf
-      - certbot-etc:/etc/letsencrypt
-      - certbot-www:/var/www/certbot
       - ${PWD}/scripts/wait-for.sh:/bin/wait-for.sh
+      - type: volume
+        source: certbot-etc
+        target: /etc/letsencrypt
+        read_only: true
+      - type: volume
+        source: certbot-www
+        target: /var/www/certbot
+        read_only: true
 
   certbot:
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
