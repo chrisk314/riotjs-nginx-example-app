@@ -1,5 +1,5 @@
 const path = require('path')
-const webpack = require('webpack')
+const CompressionPlugin = require('compression-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
@@ -13,7 +13,16 @@ module.exports = {
     new CopyWebpackPlugin([
       { from: './src/index.html', to: './index.html' },
       { from: './src/assets', to: './assets' },
-    ])
+    ]),
+    new CompressionPlugin({
+      filename: '[path].gz[query]',
+      algorithm: 'gzip',
+      test: /\.(js|css|html|svg)$/,
+      compressionOptions: { level: 9 },
+      threshold: 256,
+      minRatio: 0.8,
+      deleteOriginalAssets: false,
+    })
   ],
   module: {
     rules: [
