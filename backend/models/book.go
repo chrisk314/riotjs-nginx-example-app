@@ -1,10 +1,14 @@
 package models
 
 import (
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
 )
+
+var bookTagToField = make(map[string]string)
 
 // Book models database Book table. Represents a book.
 type Book struct {
@@ -20,6 +24,24 @@ type Book struct {
 	Reviews         int       `json:"reviews"`
 	PublicationDate time.Time `json:"publication_date" binding:"required"`
 	Publisher       string    `json:"publisher" binding:"required"`
+}
+
+func buildBookTagToFieldMap() {
+	ref := reflect.TypeOf(Book{})
+	for i := 0; i < ref.NumField(); i++ {
+		field := ref.Field(i)
+		tag := strings.Split(field.Tag.Get("json"), ",")[0]
+		bookTagToField[tag] = field.Name
+	}
+	bookTagToField["id"] = "ID"
+}
+
+// GetFieldByJSONTag returns struct field name with corresponding json tag
+func (book *Book) GetFieldByJSONTag(tag string) string {
+	if len(bookTagToField) == 0 {
+		buildBookTagToFieldMap()
+	}
+	return bookTagToField[tag]
 }
 
 // BookUpdater facilitates updating field(s) in a Book record.

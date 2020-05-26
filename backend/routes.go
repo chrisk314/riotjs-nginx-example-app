@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"net/url"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -184,9 +186,74 @@ func getFilterSpecs(c echo.Context) (qss querySpecs, err error) {
 	return qss, nil
 }
 
+func buildAfterQueryString(qss querySpecs, book models.Book) string {
+	refBook := reflect.ValueOf(book)
+	afterArgs := []string{}
+	for _, ss := range qss {
+		fieldVal := refBook.FieldByName(book.GetFieldByJSONTag(ss.field))
+		fieldValURL := url.QueryEscape(fmt.Sprintf("%v", fieldVal))
+		afterArgs = append(afterArgs, fmt.Sprintf("%s=%v", ss.field, fieldValURL))
+	}
+	return "after=" + strings.Join(afterArgs, ",")
+}
+
+func buildPaginationLinks(c echo.Context, books []models.Book, limit int,
+	sortSpecs, filterSpecs querySpecs, prev bool) JSONResp {
+
+	params := c.QueryParams()
+	baseQs := fmt.Sprintf("limit=%d", limit)
+	if _, ok := params["pretty"]; ok {
+		baseQs = "pretty&" + baseQs
+	}
+	filters := make([]string, 0)
+	for field := range recognisedFilters {
+		if _filters, ok := params[field]; ok {
+			for _, _filter := range _filters {
+				filters = append(filters, fmt.Sprintf("%s=%s", field, _filter))
+			}
+		}
+	}
+	if len(filters) > 0 {
+		baseQs = baseQs + "&" + strings.Join(filters, "&")
+	}
+	if v, ok := params["sort_by"]; ok {
+		baseQs = baseQs + "&sort_by=" + v[0]
+	}
+
+	baseLink := fmt.Sprintf("%s/?%s", c.Path(), baseQs)
+	selfLink, prevLink, nextLink := baseLink, "", ""
+	_, hasAfter := params["after"]
+	if !hasAfter {
+		// first page of results
+		afterQs := buildAfterQueryString(sortSpecs, books[len(books)-1])
+		nextLink = selfLink + "&" + afterQs
+	} else if hasAfter && !prev {
+		// intermediate result going forwards
+		afterQs := buildAfterQueryString(sortSpecs, books[0])
+		selfLink = selfLink + "&" + afterQs
+		prevLink = selfLink + "&previous"
+		if len(books) == limit { // Fetched max records => assume more pages
+			afterQs = buildAfterQueryString(sortSpecs, books[len(books)-1])
+			nextLink = selfLink + "&" + afterQs
+		}
+	} else if hasAfter && prev {
+		// intermediate result going backwards
+		afterQs := buildAfterQueryString(sortSpecs, books[len(books)-1])
+		nextLink = selfLink + "&" + afterQs
+		if len(books) == limit { // Fetched max records => assume more pages
+			afterQs = buildAfterQueryString(sortSpecs, books[0])
+			selfLink = selfLink + "&" + afterQs
+			prevLink = selfLink + "&previous"
+		}
+	}
+
+	return JSONResp{"self": selfLink, "next": nextLink, "prev": prevLink}
+}
+
 // BooksList serves JSON response for books list route.
 func BooksList(c echo.Context) (err error) {
 	db := c.Get("db").(*gorm.DB) // TODO : How to ensure db not nil?
+
 	// Process query params
 	limit := pageLimit
 	if _limit := c.QueryParam("limit"); _limit != "" {
@@ -204,20 +271,21 @@ func BooksList(c echo.Context) (err error) {
 	if err != nil {
 		return badRequest(c, err.Error())
 	}
-	filterSpecs, err := getFilterSpecs(c)
-	if err != nil {
-		return badRequest(c, err.Error())
-	}
 	if len(sortSpecs) > 0 {
 		if !sortSpecs.FieldSet().ContainsSet(afterSpecs.FieldSet()) {
 			err = fmt.Errorf("incompatible `sort_by` and `after` specifications")
 			return badRequest(c, err.Error())
 		}
 	}
+	filterSpecs, err := getFilterSpecs(c)
+	if err != nil {
+		return badRequest(c, err.Error())
+	}
 	prev := false
 	if _, ok := c.QueryParams()["previous"]; ok {
 		prev = true
 	}
+
 	// Compose query
 	q := db.Limit(limit)
 	for _, ss := range sortSpecs {
@@ -253,15 +321,21 @@ func BooksList(c echo.Context) (err error) {
 		}
 		q = q.Where(stmt)
 	}
+
 	// Execute query
 	var books []models.Book
 	q.Find(&books)
-	if prev { // Put data in correct order if this was a request for previoius page.
+	if prev { // Put data in correct order if this was a request for previous page.
 		for i, j := 0, len(books)-1; i < j; i, j = i+1, j-1 {
 			books[i], books[j] = books[j], books[i]
 		}
 	}
-	return c.JSON(http.StatusOK, JSONResp{"data": books, "count": len(books)})
+
+	ref := reflect.ValueOf(books[0])
+	fmt.Println("ref:", ref, ref.FieldByName("title"), ref.FieldByName("Title"))
+
+	links := buildPaginationLinks(c, books, limit, sortSpecs, filterSpecs, prev)
+	return c.JSON(http.StatusOK, JSONResp{"data": books, "count": len(books), "_links": links})
 }
 
 // BooksCreate creates a new book record.
