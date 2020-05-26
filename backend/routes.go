@@ -331,11 +331,10 @@ func BooksList(c echo.Context) (err error) {
 		}
 	}
 
-	ref := reflect.ValueOf(books[0])
-	fmt.Println("ref:", ref, ref.FieldByName("title"), ref.FieldByName("Title"))
-
 	links := buildPaginationLinks(c, books, limit, sortSpecs, filterSpecs, prev)
-	return c.JSON(http.StatusOK, JSONResp{"data": books, "count": len(books), "_links": links})
+
+	resp := JSONResp{"data": books, "count": len(books), "_links": links}
+	return utils.JSON(c, http.StatusOK, resp, false)
 }
 
 // BooksCreate creates a new book record.
