@@ -1,0 +1,105 @@
+<page-books>
+
+  <div class="header">
+    <h1>{ page.title }</h1>
+  </div>
+  <div class="content">
+    <p>{ page.body }</p>
+
+    <!-- Example JSON data from /api/books
+        {
+            "ID": 1,
+            "CreatedAt": "0001-01-01T00:00:00Z",
+            "UpdatedAt": "0001-01-01T00:00:00Z",
+            "DeletedAt": null,
+            "title": "Harry Potter and the Half-Blood Prince (Harry Potter  #6)",
+            "authors": "J.K. Rowling/Mary GrandPré",
+            "average_rating": "4.57",
+            "isbn": "0439785960",
+            "isbn_13": "9780439785969",
+            "language_code": "eng",
+            "num_pages": 652,
+            "ratings": 2095690,
+            "reviews": 27591,
+            "publication_date": "2006-09-16T00:00:00Z",
+            "publisher": "Scholastic Inc."
+        },
+    -->
+
+    <table class="pure-table pure-table-horizontal">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Authors</th>
+          <th>Publisher</th>
+          <th>Publication Date</th>
+          <th>Avg. Rating</th>
+          <th>Ratings</th>
+          <th>Reviews</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr each={ item in state.data }>
+          <td>{ item.ID }</td>
+          <td>
+            <a href="#/books/{ item.ID }">{ item.title }</a>
+          </td>
+          <td>{ item.authors }</td>
+          <td>{ item.publisher }</td>
+          <td>{ item.publication_date }</td>
+          <td>{ item.average_rating }</td>
+          <td>{ item.ratings }</td>
+          <td>{ item.reviews }</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button if={ state.links.prev } class="pure-button" onclick={ dataNavClickHandler } data-path="{ state.links.prev }">prev</button>
+    <button if={ state.links.next } class="pure-button" onclick={ dataNavClickHandler } data-path="{ state.links.next }">next</button>
+  </div>
+
+  <script>
+    export default {
+      page: {
+        title: "Books",
+        body: "A list of books!"
+      },
+      state: {
+        error: null,
+        data: [],
+        links: {
+          self: '/api/v1/books',
+          next: null,
+          prev: null,
+        },
+      },
+      dataNavClickHandler(e) {
+        const path = e.target.dataset.path
+        this.doApiRequest(path)
+      },
+      doApiRequest(path) {
+        fetch(window.location.origin + path)
+          .then((res) => res.json())
+          .then((data) => {
+            this.update({
+              error: data.error,
+              data: data.data,
+              links: data._links,
+            })
+          })
+      },
+      onBeforeMount() {
+        this.doApiRequest(this.state.links.self)
+      }
+    }
+  </script>
+
+  <style>
+    :host {
+      display: block;
+      text-align: center;
+    }
+  </style>
+
+</page-books>

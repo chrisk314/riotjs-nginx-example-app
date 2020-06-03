@@ -6,6 +6,7 @@
       <div id="main">
         <route path="(#)?"><page-home/></route>
         <route path="#/about"><page-about/></route>
+        <route path="#/books"><page-books/></route>
         <route path="#/fruits"><page-fruits/></route>
         <route path="#/fruits/:id">
           <page-fruits-id route={ route }/>
@@ -18,6 +19,7 @@
     import Navi from './navi.riot'
     import PageHome from '../pages/page-home.riot'
     import PageAbout from '../pages/page-about.riot'
+    import PageBooks from '../pages/page-books.riot'
     import PageFruits from '../pages/page-fruits.riot'
     import PageFruitsId from '../pages/page-fruits-id.riot'
 
@@ -28,6 +30,7 @@
         Navi,
         PageHome,
         PageAbout,
+        PageBooks,
         PageFruits,
         PageFruitsId
       }
