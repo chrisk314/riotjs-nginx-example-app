@@ -229,13 +229,13 @@ func buildPaginationLinks(c echo.Context, books []models.Book, limit int,
 		nextLink = selfLink + "&" + afterQs
 	} else if hasAfter && !prev {
 		// intermediate result going forwards
+		if len(books) == limit { // Fetched max records => assume more pages
+			afterQs := buildAfterQueryString(sortSpecs, books[len(books)-1])
+			nextLink = selfLink + "&" + afterQs
+		}
 		afterQs := buildAfterQueryString(sortSpecs, books[0])
 		selfLink = selfLink + "&" + afterQs
 		prevLink = selfLink + "&previous"
-		if len(books) == limit { // Fetched max records => assume more pages
-			afterQs = buildAfterQueryString(sortSpecs, books[len(books)-1])
-			nextLink = selfLink + "&" + afterQs
-		}
 	} else if hasAfter && prev {
 		// intermediate result going backwards
 		afterQs := buildAfterQueryString(sortSpecs, books[len(books)-1])
