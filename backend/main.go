@@ -22,7 +22,9 @@ func main() {
 	router.Pre(middleware.RemoveTrailingSlash())
 	router.Use(middleware.Logger())
 	router.Use(middleware.Recover())
-	router.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 5}))
+	router.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+		Level: 5,
+	}))
 	router.Use(database.DBContext)
 
 	// Routes
