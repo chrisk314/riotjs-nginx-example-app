@@ -200,6 +200,9 @@ func buildAfterQueryString(qss querySpecs, book models.Book) string {
 func buildPaginationLinks(c echo.Context, books []models.Book, limit int,
 	sortSpecs, filterSpecs querySpecs, prev bool) JSONResp {
 
+	numRecords := len(books)
+	idxLast := MinInt(limit, numRecords) - 1
+
 	params := c.QueryParams()
 	baseQs := fmt.Sprintf("limit=%d", limit)
 	if _, ok := params["pretty"]; ok {
@@ -225,12 +228,14 @@ func buildPaginationLinks(c echo.Context, books []models.Book, limit int,
 	_, hasAfter := params["after"]
 	if !hasAfter {
 		// first page of results
-		afterQs := buildAfterQueryString(sortSpecs, books[len(books)-1])
-		nextLink = selfLink + "&" + afterQs
+		if numRecords > limit {
+			afterQs := buildAfterQueryString(sortSpecs, books[idxLast])
+			nextLink = selfLink + "&" + afterQs
+		}
 	} else if hasAfter && !prev {
 		// intermediate result going forwards
-		if len(books) == limit { // Fetched max records => assume more pages
-			afterQs := buildAfterQueryString(sortSpecs, books[len(books)-1])
+		if numRecords > limit { // Fetched max records => assume more pages
+			afterQs := buildAfterQueryString(sortSpecs, books[idxLast])
 			nextLink = selfLink + "&" + afterQs
 		}
 		afterQs := buildAfterQueryString(sortSpecs, books[0])
@@ -238,10 +243,10 @@ func buildPaginationLinks(c echo.Context, books []models.Book, limit int,
 		prevLink = selfLink + "&previous"
 	} else if hasAfter && prev {
 		// intermediate result going backwards
-		afterQs := buildAfterQueryString(sortSpecs, books[len(books)-1])
+		afterQs := buildAfterQueryString(sortSpecs, books[0])
 		nextLink = selfLink + "&" + afterQs
-		if len(books) == limit { // Fetched max records => assume more pages
-			afterQs = buildAfterQueryString(sortSpecs, books[0])
+		if numRecords > limit { // Fetched max records => assume more pages
+			afterQs = buildAfterQueryString(sortSpecs, books[idxLast])
 			selfLink = selfLink + "&" + afterQs
 			prevLink = selfLink + "&previous"
 		}
@@ -287,7 +292,7 @@ func BooksList(c echo.Context) (err error) {
 	}
 
 	// Compose query
-	q := db.Limit(limit)
+	q := db.Limit(limit + 1) // Request extra record to check if next query non-empty
 	for _, ss := range sortSpecs {
 		order := "desc"
 		if (ss.value == "desc" && prev) || (ss.value == "asc" && !prev) {
@@ -325,13 +330,17 @@ func BooksList(c echo.Context) (err error) {
 	// Execute query
 	var books []models.Book
 	q.Find(&books)
+
+	links := buildPaginationLinks(c, books, limit, sortSpecs, filterSpecs, prev)
+
+	if len(books) > limit { // Trim off the extra record if present
+		books = books[:limit]
+	}
 	if prev { // Put data in correct order if this was a request for previous page.
 		for i, j := 0, len(books)-1; i < j; i, j = i+1, j-1 {
 			books[i], books[j] = books[j], books[i]
 		}
 	}
-
-	links := buildPaginationLinks(c, books, limit, sortSpecs, filterSpecs, prev)
 
 	resp := JSONResp{"data": books, "count": len(books), "_links": links}
 	return utils.JSON(c, http.StatusOK, resp, false)
