@@ -4,7 +4,6 @@
     <h1>{ page.title }</h1>
   </div>
   <div class="content">
-    <p>{ page.body }</p>
 
     <!-- Example JSON data from /api/books
         {
@@ -25,15 +24,21 @@
             "publisher": "Scholastic Inc."
         },
     -->
-
     <table class="pure-table pure-table-horizontal">
+      <col style="width:10%">
+      <col style="width:30%">
+      <col style="width:20%">
+      <col style="width:10%">
+      <col style="width:10%">
+      <col style="width:10%">
+      <col style="width:10%">
+
       <thead>
         <tr>
           <th>#</th>
           <th>Title</th>
           <th>Authors</th>
-          <th>Publisher</th>
-          <th>Publication Date</th>
+          <th>Published</th>
           <th>Avg. Rating</th>
           <th>Ratings</th>
           <th>Reviews</th>
@@ -46,24 +51,23 @@
             <a href="#/books/{ item.ID }">{ item.title }</a>
           </td>
           <td>{ item.authors }</td>
-          <td>{ item.publisher }</td>
-          <td>{ item.publication_date }</td>
+          <td>{ (new Date(item.publication_date)).toLocaleDateString() }</td>
           <td>{ item.average_rating }</td>
-          <td>{ item.ratings }</td>
-          <td>{ item.reviews }</td>
+          <td>{ fmtCount(item.ratings) }</td>
+          <td>{ fmtCount(item.reviews) }</td>
         </tr>
       </tbody>
     </table>
 
-    <button if={ state.links.prev } class="pure-button" onclick={ dataNavClickHandler } data-path="{ state.links.prev }">prev</button>
-    <button if={ state.links.next } class="pure-button" onclick={ dataNavClickHandler } data-path="{ state.links.next }">next</button>
+    <button if={ state.links.prev } class="pure-button data-nav-button" onclick={ dataNavClickHandler } data-path="{ state.links.prev }">prev</button>
+    <button if={ state.links.next } class="pure-button data-nav-button" onclick={ dataNavClickHandler } data-path="{ state.links.next }">next</button>
   </div>
 
   <script>
     export default {
       page: {
         title: "Books",
-        body: "A list of books!"
+        body: null,
       },
       state: {
         error: null,
@@ -91,6 +95,15 @@
       },
       onBeforeMount() {
         this.doApiRequest(this.state.links.self)
+      },
+      fmtCount(x) {
+        var exp = Math.min(3, Math.max(0, Math.floor(Math.log10(x) / 3)))
+        if (exp) {
+          var arg = Math.floor(x / Math.pow(1000, exp))
+          var scale = ({1: 'K+', 2: 'M+', 3: 'B+'})[exp]
+          return String(arg) + scale
+        }
+        return String(x)
       }
     }
   </script>
@@ -99,6 +112,16 @@
     :host {
       display: block;
       text-align: center;
+    }
+    table {
+      width: "100%";
+      margin: 50px 0 20px 0;
+    }
+    tr, td {
+      text-align: left;
+    }
+    .data-nav-button {
+      margin: 5px;
     }
   </style>
 

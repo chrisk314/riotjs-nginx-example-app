@@ -18,18 +18,18 @@
     "webpack"
   ],
   "devDependencies": {
-    "@babel/core": "^7.9.6",
-    "@babel/preset-env": "^7.9.6",
+    "@babel/core": "^7.10.2",
+    "@babel/preset-env": "^7.10.2",
+    "@riotjs/compiler": "^4.9.1",
+    "@riotjs/hot-reload": "^4.0.1",
+    "@riotjs/route": "^5.3.2",
+    "@riotjs/webpack-loader": "^4.0.0",
     "babel-loader": "^8.0.6",
     "compression-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^5.1.1",
-    "riot": "^4.0.5",
-    "@riotjs/compiler": "^4.2.5",
-    "@riotjs/hot-reload": "^4.0.0",
-    "@riotjs/route": "^5.3.2",
-    "@riotjs/webpack-loader": "^4.0.0",
+    "riot": "^4.13.1",
     "webpack": "^4.33.0",
     "webpack-cli": "^3.3.2",
-    "webpack-dev-server": "^3.5.1"
+    "webpack-dev-server": "^3.11.0"
   }
 }
