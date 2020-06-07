@@ -7,10 +7,10 @@
         <route path="(#)?"><page-home/></route>
         <route path="#/about"><page-about/></route>
         <route path="#/books"><page-books/></route>
-        <route path="#/fruits"><page-fruits/></route>
-        <route path="#/fruits/:id">
-          <page-fruits-id route={ route }/>
+        <route path="#/books/:id">
+          <page-books-id route={ route }/>
         </route>
+        <route path="#/fruits"><page-fruits/></route>
       </div>
     </div>
   </router>
@@ -20,8 +20,8 @@
     import PageHome from '../pages/page-home.riot'
     import PageAbout from '../pages/page-about.riot'
     import PageBooks from '../pages/page-books.riot'
+    import PageBooksId from '../pages/page-books-id.riot'
     import PageFruits from '../pages/page-fruits.riot'
-    import PageFruitsId from '../pages/page-fruits-id.riot'
 
     const loc = window.location
     export default {
@@ -31,8 +31,8 @@
         PageHome,
         PageAbout,
         PageBooks,
+        PageBooksId,
         PageFruits,
-        PageFruitsId
       }
     }
   </script>

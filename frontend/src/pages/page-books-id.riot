@@ -1,0 +1,100 @@
+<page-fruits-id>
+
+  <div class="header">
+    <h1>{ page.title }</h1>
+  </div>
+  <div class="content">
+    <p>{page.body}</p>
+
+    <table>
+      <col style="width:25%">
+      <col style="width:75%">
+      <tbody>
+        <tr>
+          <td>Title:</td>
+          <td>{ state.data.title }</td>
+        </tr>
+        <tr>
+          <td>Authors:</td>
+          <td>{ state.data.authors }</td>
+        </tr>
+        <tr>
+          <td>Publisher:</td>
+          <td>{ state.data.publisher }</td>
+        </tr>
+        <tr>
+          <td>ISBN:</td>
+          <td>{ state.data.isbn }</td>
+        </tr>
+        <tr>
+          <td>Published:</td>
+          <td>{ (new Date(state.data.publication_date)).toLocaleDateString() }</td>
+        </tr>
+        <tr>
+          <td>Avg. Rating:</td>
+          <td>{ state.data.average_rating }</td>
+        </tr>
+        <tr>
+          <td>Ratings:</td>
+          <td>{ fmtCount(state.data.ratings) }</td>
+        </tr>
+        <tr>
+          <td>Reviews:</td>
+          <td>{ fmtCount(state.data.reviews) }</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    export default {
+      page: {
+        title: "Book",
+        body: null,
+      },
+      state: {
+        error: null,
+        data: null,
+      },
+      doApiRequest(path) {
+        fetch(window.location.origin + path)
+          .then((res) => res.json())
+          .then((data) => {
+            this.update({
+              error: data.error,
+              data: data.data,
+            })
+          })
+      },
+      onBeforeMount() {
+        const [id] = this.props.route.params
+        const path = '/api/v1/books/' + String(id)
+        this.doApiRequest(path)
+      },
+      fmtCount(x) {
+        var exp = Math.min(3, Math.max(0, Math.floor(Math.log10(x) / 3)))
+        if (exp) {
+          var arg = Math.floor(x / Math.pow(1000, exp))
+          var scale = ({1: 'K+', 2: 'M+', 3: 'B+'})[exp]
+          return String(arg) + scale
+        }
+        return String(x)
+      }
+    }
+  </script>
+
+  <style>
+    :host {
+      display: block;
+      text-align: center;
+    }
+    table {
+      width: "100%";
+      margin: 50px 0 20px 0;
+    }
+    tr, td {
+      text-align: left;
+    }
+  </style>
+
+</page-fruits-id>
